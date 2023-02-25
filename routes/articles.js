@@ -5,6 +5,7 @@ const { find } = require("../models/articles");
 var ArticleModel = require("../models/articles");
 
 router.post("/add-item", async (req, res, next) => {
+	try {
 		var newItem = new ArticleModel({
 			name: req.body?.name,
 			description: req.body?.description,
@@ -14,20 +15,22 @@ router.post("/add-item", async (req, res, next) => {
 			sold: false,
 		});
 		const newItemSaved = await newItem.save();
-        console.log(newItemSaved);
+		console.log(newItemSaved);
 		var success = true;
 		res.json({ success, addedArticle: newItemSaved });
-	} 
-);
-
-router.get("/load-articles", async (req, res, next) => {
-    try {let articles = await ArticleModel.find()
-    console.log(articles)
-    var success = true;
-    res.json({success, articles});
-    } catch (error) {
+	} catch (error) {
 		console.log(error);
 	}
-})
+});
+
+router.get("/load-articles", async (req, res, next) => {
+	try {
+		let articles = await ArticleModel.find();
+		var success = true;
+		res.json({ success, articles });
+	} catch (error) {
+		console.log(error);
+	}
+});
 
 module.exports = router;
