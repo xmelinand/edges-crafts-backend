@@ -44,50 +44,53 @@ router.post("/create-user", async function (req, res, next) {
 			});
 		} catch (error) {
 			console.log("fuck you", error);
+			res.status(500).json(error);
 		}
 	}
 	if (userFind) {
 		var message = "e-mail déjà utilisé.";
 		var success = false;
-    console.log('util trouvé', message)
+		console.log("util trouvé", message);
 		res.status(200).json({ success, error: message });
 	}
 });
 
 // SIGN-IN
 router.post("/sign-in", async function (req, res, next) {
-  var error;
-  var passOk = false;
-  var logged = false;
-  var errPwd = "Le mot de passe est invalide.";
-  var errMail = "L'email est invalide.";
-  var password = req.body?.password;
+	var error;
+	var passOk = false;
+	var logged = false;
+	var errPwd = "Le mot de passe est invalide.";
+	var errMail = "L'email est invalide.";
+	var password = req.body?.password;
+	try {
+		console.log("checking request", req.body.email);
+		var userFound = await UserModel.findOne({ email: req.body.email });
+		if (userFound) {
+			console.log("found user! name =>", userFound.firstName);
+			if (bcrypt.compareSync(password, userFound.password)) {
+				passOk = true;
+				console.log("pass ok");
+			}
+		}
 
-	console.log("checking request", req.body.email);
-	var userFound = await UserModel.findOne({ email: req.body.email });
-	if(userFound){
-  console.log("found user! name =>", userFound.firstName);
-  if (bcrypt.compareSync(password, userFound.password)) {
-		passOk = true;
-    console.log("pass ok")
+		if (!userFound) {
+			error = errMail;
+		} else if (userFound && !passOk) {
+			error = errPwd;
+		} else if (userFound && passOk) {
+			logged = true;
+		}
+
+		if (logged) {
+			// RES.JSON
+			res.json({ userFound, logged, userToken: userFound.token });
+		} else {
+			res.json({ logged, error });
+		}
+	} catch (error) {
+		res.status(500).json({ error });
 	}
-  }
-
-  if (!userFound) {
-		error = errMail;
-	} else if (userFound && !passOk) {
-		error = errPwd;
-	} else if (userFound && passOk) {
-		logged = true;
-	}
-
-  if(logged){
-	// RES.JSON
-	res.json({ userFound, logged, userToken: userFound.token });
-  } else {
-    console.log("err", error)
-    res.json({error:error})
-  }
 });
 
 module.exports = router;

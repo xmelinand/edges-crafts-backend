@@ -7,7 +7,7 @@ var articleSchema = mongoose.Schema({
     price: Number,
     pic: String,
     sold: Boolean,
-},);
+});
 
 var ArticleModel = mongoose.model("articles", articleSchema);
 

@@ -19,6 +19,7 @@ var userSchema = mongoose.Schema({
 	address: addressSchema,
 	admin: Boolean,
 	basket:[{ type: mongoose.Schema.Types.ObjectId, ref: "articles" }],
+	orders:[{ type: mongoose.Schema.Types.ObjectId, ref: "orders" }]
 });
 
 var UserModel = mongoose.model("users", userSchema);
